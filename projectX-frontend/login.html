@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QuerryMind - Login</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap");
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(135deg, #0b062c, #1e0b4c);
+        color: #ddd;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+        overflow-x: hidden;
+        position: relative;
+      }
+      .login-container {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 30px;
+        backdrop-filter: blur(15px);
+        box-shadow: 0 0 30px #7f56da88;
+        width: 100%;
+        max-width: 400px;
+        padding: 40px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        animation: float 6s ease-in-out infinite;
+        transform-style: preserve-3d;
+        perspective: 1000px;
+      }
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0) rotateY(0deg);
+        }
+        50% {
+          transform: translateY(-10px) rotateY(2deg);
+        }
+      }
+      .logo {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 30px;
+        border-radius: 50%;
+        background: radial-gradient(circle, #a0afff 30%, #2a2e63 80%);
+        box-shadow: 0 0 15px #8f87ffaa, inset 0 0 20px #d1d7ffbb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: white;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+      }
+      h2 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        background: linear-gradient(45deg, #b192ff, #6d3eff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        margin-bottom: 30px;
+        text-shadow: 0 0 15px rgba(107, 56, 255, 0.2);
+      }
+      .form-group {
+        margin-bottom: 20px;
+        text-align: left;
+        position: relative;
+      }
+      label {
+        display: block;
+        margin-bottom: 8px;
+        color: #b192ff;
+        font-size: 0.9rem;
+        font-weight: 500;
+      }
+      input {
+        width: 100%;
+        padding: 14px 20px;
+        border-radius: 30px;
+        border: none;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        font-size: 1rem;
+        outline: none;
+        transition: all 0.3s ease;
+        box-shadow: inset 0 0 8px rgba(127, 86, 218, 0.1);
+      }
+      input:focus {
+        background: rgba(255, 255, 255, 0.15);
+        box-shadow: inset 0 0 10px rgba(127, 86, 218, 0.2), 0 0 0 2px #7f56da;
+      }
+      input::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+      }
+      .toggle-password {
+        position: absolute;
+        right: 15px;
+        top: 43px;
+        cursor: pointer;
+        user-select: none;
+        opacity: 0.7;
+        transition: opacity 0.3s;
+      }
+      .toggle-password:hover {
+        opacity: 1;
+      }
+      .btn {
+        width: 100%;
+        padding: 15px;
+        border-radius: 30px;
+        border: none;
+        background: linear-gradient(45deg, #b192ff, #6d3eff);
+        color: white;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+        box-shadow: 0 5px 20px #844affaa;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .btn:hover {
+        background: linear-gradient(45deg, #7b4bff, #3b19e6);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px #3b19e6cc;
+      }
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+      .links {
+        margin-top: 25px;
+        font-size: 0.9rem;
+        line-height: 1.5;
+      }
+      .links a {
+        color: #b192ff;
+        text-decoration: none;
+        transition: color 0.3s ease;
+      }
+      .links a:hover {
+        color: #7b4bff;
+        text-decoration: underline;
+      }
+      #message-area {
+        margin-top: 20px;
+        padding: 12px;
+        border-radius: 15px;
+        font-size: 0.95rem;
+        text-align: center;
+        opacity: 0;
+        height: 0;
+        overflow: hidden;
+        transition: opacity 0.3s ease-in-out, height 0.3s ease-in-out,
+          padding 0.3s ease-in-out;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      #message-area.show {
+        opacity: 1;
+        height: auto;
+        padding: 12px;
+      }
+      #message-area.success {
+        background-color: rgba(60, 179, 113, 0.2);
+        color: #3cb371;
+        border: 1px solid #3cb371;
+      }
+      #message-area.error {
+        background-color: rgba(255, 99, 71, 0.2);
+        color: #ff6347;
+        border: 1px solid #ff6347;
+      }
+      .spinner {
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-top: 3px solid #fff;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        animation: spin 0.8s linear infinite;
+        display: none;
+        margin-left: 10px;
+      }
+      
+      .spinner.show {
+        display: inline-block;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-container animate__animated animate__fadeIn">
+      <div class="logo" aria-hidden="true">QM</div>
+      <h2>Welcome Back</h2>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="email">Email or Username</label>
+          <input
+            type="text"
+            id="email"
+            name="email"
+            required
+            placeholder="Enter your email or username"
+          />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            required
+            placeholder="Enter your password"
+          />
+          <span class="toggle-password" id="togglePassword">👁️</span>
+        </div>
+        <button type="submit" class="btn" id="loginButton">
+          Login
+          <span class="spinner" id="loginSpinner"></span>
+        </button>
+      </form>
+
+      <div id="message-area"></div>
+
+      <!-- ✅ Continue Button Added -->
+      <button id="continueBtn" class="btn hidden" style="margin-top: 15px">
+        Continue to Chatbot
+      </button>
+
+      <div class="links">
+        <p>Don't have an account? <a href="register.html">Register</a></p>
+        <p><a href="auth/forget-password.html">Forgot password?</a></p>
+      </div>
+    </div>
+    
+
+    <script type="module">
+ 
+      document
+        .getElementById("togglePassword")
+        .addEventListener("click", () => {
+          const passwordInput = document.getElementById("password");
+          passwordInput.type =
+            passwordInput.type === "password" ? "text" : "password";
+        });
+      const loginForm = document.getElementById("loginForm");
+      const continueBtn = document.getElementById("continueBtn");
+      const messageArea = document.getElementById("message-area");
+
+      loginForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        try {
+          const response = await fetch(`http://localhost:8000/api/v1/users/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+          });
+
+          const data = await response.json();
+          console.log("Login API response:", data);
+
+          if (!response.ok) {
+            if (
+              response.status === 403 &&
+              data.message.includes("not verified")
+            ) {
+              showMessage(data.message, "error");
+
+              const resendBtn = document.createElement("button");
+              resendBtn.textContent = "Resend Verification Email";
+              resendBtn.className = "btn";
+              resendBtn.style.marginTop = "10px";
+              resendBtn.onclick = async () => {
+                resendBtn.disabled = true;
+                resendBtn.textContent = "Resending...";
+                try {
+                  await fetch(`http://localhost:8000/api/v1/users/resend-verification`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email }),
+                  });
+                  showMessage(
+                    "Verification email resent. Please check your inbox.",
+                    "success"
+                  );
+                  resendBtn.textContent = "Sent!";
+                } catch (error) {
+                  showMessage("Failed to resend verification email", "error");
+                }
+              };
+              document.getElementById("message-area").appendChild(resendBtn);
+              return;
+            }
+
+            showMessage(data.message || "Login failed", "error");
+            return;
+          }
+
+          // ✅ Extract and store token properly
+          const token = data.data?.accessToken;
+          if (!token) {
+            showMessage("Login succeeded but token missing!", "error");
+            return;
+          }
+
+          localStorage.setItem("accessToken", token);
+          console.log("Stored accessToken:", token);
+
+          showMessage("Login successful! Click Continue.", "success");
+          continueBtn.classList.remove("hidden");
+        } catch (error) {
+          console.error("Login error:", error);
+          showMessage("Network error. Please try again later.", "error");
+        }
+      });
+
+      continueBtn.addEventListener("click", () => {
+        window.location.href = "chatbot.html"; // Adjust if chatbot.html is in a subfolder
+      });
+
+      function showMessage(msg, type = "error") {
+        messageArea.textContent = msg;
+        messageArea.classList.remove("error", "success", "show");
+        messageArea.classList.add(
+          "show",
+          type === "success" ? "success" : "error"
+        );
+      }
+    </script>
+  </body>
+</html>

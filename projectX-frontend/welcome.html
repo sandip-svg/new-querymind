@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuerryMind - AI Chatbot</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap");
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #0b062c, #1e0b4c);
+      color: #ddd;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    .welcome-container {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 40px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 0 50px #7f56da88;
+      width: 90%;
+      max-width: 500px;
+      padding: 60px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transform-style: preserve-3d;
+      perspective: 1000px;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotateY(0deg); }
+      50% { transform: translateY(-20px) rotateY(5deg); }
+    }
+
+    .robot {
+      width: 180px;
+      height: 180px;
+      margin: 0 auto 40px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #a0afff 30%, #2a2e63 80%);
+      position: relative;
+      box-shadow: 0 0 30px #8f87ffaa, inset 0 0 40px #d1d7ffbb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: pulse 4s infinite alternate;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 30px #8f87ffaa, inset 0 0 40px #d1d7ffbb; }
+      100% { box-shadow: 0 0 50px #b192ffcc, inset 0 0 60px #e3d6ffdd; }
+    }
+
+    .robot::before,
+    .robot::after {
+      content: "";
+      position: absolute;
+      top: 35%;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #fff 60%, #5a56ff 100%);
+      box-shadow: 0 0 15px #8f87ffcc;
+      animation: eyesBlink 5s infinite;
+    }
+
+    @keyframes eyesBlink {
+      0%, 48%, 52%, 100% { transform: scaleY(1); }
+      50% { transform: scaleY(0.1); }
+    }
+
+    .robot::before {
+      left: 20%;
+      box-shadow: 5px 0 15px #8f87ffcc;
+    }
+    .robot::after {
+      right: 20%;
+      box-shadow: -5px 0 15px #8f87ffcc;
+    }
+
+    .robot-mouth {
+      position: absolute;
+      width: 60px;
+      height: 20px;
+      background: #fff;
+      border-radius: 0 0 30px 30px;
+      bottom: 25%;
+      animation: mouthTalk 3s infinite alternate;
+    }
+
+    @keyframes mouthTalk {
+      0%, 100% { height: 10px; }
+      50% { height: 25px; }
+    }
+
+    h2 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(45deg, #b192ff, #6d3eff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 20px;
+      text-shadow: 0 0 20px rgba(107, 56, 255, 0.3);
+    }
+
+    p {
+      color: #aaa;
+      font-size: 1.2rem;
+      margin-bottom: 40px;
+      line-height: 1.6;
+    }
+
+    .btn-primary {
+      background: linear-gradient(45deg, #b192ff, #6d3eff);
+      padding: 18px 50px;
+      border: none;
+      border-radius: 40px;
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 30px #844affaa;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(45deg, #7b4bff, #3b19e6);
+      box-shadow: 0 15px 40px #3b19e6cc;
+      transform: translateY(-3px);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, #6d3eff, #b192ff);
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .btn-primary:hover::before {
+      opacity: 1;
+    }
+
+    .floating-icons {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .floating-icon {
+      position: absolute;
+      color: rgba(255, 255, 255, 0.1);
+      font-size: 1.5rem;
+      animation: floatIcon 15s linear infinite;
+    }
+
+    @keyframes floatIcon {
+      0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+      10% { opacity: 0.2; }
+      90% { opacity: 0.2; }
+      100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+    }
+
+    @media (max-width: 600px) {
+      .welcome-container {
+        padding: 40px 20px;
+        border-radius: 30px;
+      }
+      
+      h2 {
+        font-size: 1.8rem;
+      }
+      
+      .robot {
+        width: 150px;
+        height: 150px;
+      }
+      
+      .btn-primary {
+        padding: 15px 40px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="particles" id="particles-js"></div>
+  
+  <div class="welcome-container animate__animated animate__fadeIn">
+    <div class="floating-icons" id="floatingIcons"></div>
+    
+    <div class="robot">
+      <div class="robot-mouth"></div>
+    </div>
+    
+    <h2 class="animate__animated animate__fadeInUp">Meet <span>QuerryMind AI</span></h2>
+    <p class="animate__animated animate__fadeInUp animate__delay-1s">Your intelligent assistant ready to help with any question, anytime, anywhere.</p>
+    <button class="btn-primary animate__animated animate__fadeInUp animate__delay-2s" onclick="window.location.href='login.html'">
+      Get Started &raquo;
+    </button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+  <script>
+    // Floating icons generator
+    const icons = ["❓", "💡", "🤖", "✨", "🔍", "🧠", "💬", "📚"];
+    const floatingIcons = document.getElementById('floatingIcons');
+    
+    for (let i = 0; i < 20; i++) {
+      const icon = document.createElement('div');
+      icon.className = 'floating-icon';
+      icon.textContent = icons[Math.floor(Math.random() * icons.length)];
+      icon.style.left = `${Math.random() * 100}%`;
+      icon.style.top = `${Math.random() * 100}%`;
+      icon.style.animationDuration = `${15 + Math.random() * 20}s`;
+      icon.style.animationDelay = `${Math.random() * 5}s`;
+      floatingIcons.appendChild(icon);
+    }
+    
+    // Particles.js configuration
+    particlesJS('particles-js', {
+      "particles": {
+        "number": {
+          "value": 80,
+          "density": {
+            "enable": true,
+            "value_area": 800
+          }
+        },
+        "color": {
+          "value": "#b192ff"
+        },
+        "shape": {
+          "type": "circle",
+          "stroke": {
+            "width": 0,
+            "color": "#000000"
+          },
+          "polygon": {
+            "nb_sides": 5
+          }
+        },
+        "opacity": {
+          "value": 0.3,
+          "random": true,
+          "anim": {
+            "enable": true,
+            "speed": 1,
+            "opacity_min": 0.1,
+            "sync": false
+          }
+        },
+        "size": {
+          "value": 3,
+          "random": true,
+          "anim": {
+            "enable": true,
+            "speed": 2,
+            "size_min": 0.1,
+            "sync": false
+          }
+        },
+        "line_linked": {
+          "enable": true,
+          "distance": 150,
+          "color": "#7f56da",
+          "opacity": 0.2,
+          "width": 1
+        },
+        "move": {
+          "enable": true,
+          "speed": 1,
+          "direction": "none",
+          "random": true,
+          "straight": false,
+          "out_mode": "out",
+          "bounce": false,
+          "attract": {
+            "enable": true,
+            "rotateX": 600,
+            "rotateY": 1200
+          }
+        }
+      },
+      "interactivity": {
+        "detect_on": "canvas",
+        "events": {
+          "onhover": {
+            "enable": true,
+            "mode": "grab"
+          },
+          "onclick": {
+            "enable": true,
+            "mode": "push"
+          },
+          "resize": true
+        },
+        "modes": {
+          "grab": {
+            "distance": 140,
+            "line_linked": {
+              "opacity": 0.5
+            }
+          },
+          "push": {
+            "particles_nb": 4
+          }
+        }
+      },
+      "retina_detect": true
+    });
+    
+    // Add hover effect to container
+    const container = document.querySelector('.welcome-container');
+    container.addEventListener('mousemove', (e) => {
+      const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
+      const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
+      container.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+    });
+    
+    container.addEventListener('mouseenter', () => {
+      container.style.transition = 'all 0.1s ease';
+    });
+    
+    container.addEventListener('mouseleave', () => {
+      container.style.transition = 'all 0.5s ease';
+      container.style.transform = 'rotateY(0deg) rotateX(0deg)';
+    });
+  </script>
+</body>
+</html>

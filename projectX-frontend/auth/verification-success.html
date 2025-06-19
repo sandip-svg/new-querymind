@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuerryMind - Email Verified</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap");
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #0b062c, #1e0b4c);
+      color: #ddd;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .success-container {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 30px;
+      backdrop-filter: blur(15px);
+      box-shadow: 0 0 30px #7f56da88;
+      width: 100%;
+      max-width: 500px;
+      padding: 50px 40px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .success-icon {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 30px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #6bff6b 30%, #2a632a 80%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: 0 0 20px #6bff6b88;
+    }
+
+    .success-icon::before {
+      content: "✓";
+      color: white;
+      font-size: 3rem;
+      font-weight: bold;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(45deg, #b192ff, #6d3eff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 20px;
+      text-shadow: 0 0 15px rgba(107, 56, 255, 0.2);
+    }
+
+    p {
+      color: #aaa;
+      margin-bottom: 30px;
+      line-height: 1.6;
+      font-size: 1.1rem;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 15px 40px;
+      border-radius: 30px;
+      border: none;
+      background: linear-gradient(45deg, #b192ff, #6d3eff);
+      color: white;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      box-shadow: 0 5px 20px #844affaa;
+    }
+
+    .btn:hover {
+      background: linear-gradient(45deg, #7b4bff, #3b19e6);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px #3b19e6cc;
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    @media (max-width: 480px) {
+      .success-container {
+        padding: 40px 20px;
+        border-radius: 20px;
+      }
+      
+      h1 {
+        font-size: 1.5rem;
+      }
+      
+      .success-icon {
+        width: 80px;
+        height: 80px;
+      }
+      
+      .btn {
+        padding: 12px 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="success-container">
+    <div class="success-icon" aria-hidden="true"></div>
+    <h1>Email Verified Successfully!</h1>
+    <p>Your account has been successfully verified. You can now login to access all features.</p>
+    
+    <a href="#" class="btn" id="continueBtn">Continue Now</a>
+  </div>
+
+  <script src="email-verified.js"></script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuerryMind - Verification Error</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap");
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      background: #0b062c;
+      color: #ddd;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .error-container {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 30px;
+      backdrop-filter: blur(15px);
+      box-shadow: 0 0 30px #ff4d4d88;
+      width: 100%;
+      max-width: 500px;
+      padding: 50px 40px;
+    }
+
+    .error-icon {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 30px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #ff6b6b 30%, #632a2a 80%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: 0 0 20px #ff6b6b88;
+    }
+
+    .error-icon::before {
+      content: "✕";
+      color: white;
+      font-size: 3rem;
+      font-weight: bold;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #ff6b6b;
+      margin-bottom: 20px;
+    }
+
+    p {
+      color: #aaa;
+      margin-bottom: 30px;
+      line-height: 1.6;
+      font-size: 1.1rem;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 15px 40px;
+      border-radius: 30px;
+      border: none;
+      background: linear-gradient(45deg, #b192ff, #6d3eff);
+      color: white;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      box-shadow: 0 5px 20px #844affaa;
+    }
+
+    .btn:hover {
+      background: linear-gradient(45deg, #7b4bff, #3b19e6);
+      transform: translateY(-2px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    @media (max-width: 480px) {
+      .error-container {
+        padding: 40px 20px;
+      }
+      
+      h1 {
+        font-size: 1.5rem;
+      }
+      
+      .error-icon {
+        width: 80px;
+        height: 80px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="error-container">
+    <div class="error-icon" aria-hidden="true"></div>
+    <h1>Email Verification Failed</h1>
+    <p id="error-message">The verification link is invalid or has expired.</p>
+    <div class="action-buttons">
+      <a href="/projectX-frontend/register.html" class="btn" style="margin-right: 15px;">Register Again</a>
+      <a href="/projectX-frontend/login.html" class="btn">Go to Login</a>
+    </div>
+  </div>
+
+
+  <script>
+    // Parse URL parameters to show specific error messages
+    const urlParams = new URLSearchParams(window.location.search);
+    const reason = urlParams.get('reason');
+    const errorMessage = document.getElementById('error-message');
+
+    const errorMessages = {
+      'invalid_token_type': 'This verification link is for a different purpose.',
+      'user_not_found': 'No account found for this verification link.',
+      'invalid_or_expired': 'The verification link is invalid or has expired.',
+      'default': 'Email verification failed. Please try again.'
+    };
+
+    errorMessage.textContent = errorMessages[reason] || errorMessages['default'];
+  </script>
+</body>
+</html>
