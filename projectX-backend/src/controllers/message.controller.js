@@ -3,7 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { Message } from "../models/message.model.js";
 import { Conversation } from "../models/conversation.model.js";
-import {generateAIResponse} from "../services/ai.service.js"
+import { generateAIResponse } from "../services/ai.service.js";
 
 // Create a new message
 
@@ -11,6 +11,7 @@ const createMessage = asyncHandler(async (req, res) => {
   const { content, metadata } = req.body;
   const { conversationId } = req.params;
   const userId = req.user._id;
+  let assistantMessage = null;
 
   if (!content?.trim()) {
     throw new ApiError(400, "Message content is required");
@@ -37,20 +38,24 @@ const createMessage = asyncHandler(async (req, res) => {
 
   // Update conversation
   await Conversation.findByIdAndUpdate(conversationId, {
-    $set: { updatedAt: new Date() }
+    $set: { updatedAt: new Date() },
   });
 
   // Only trigger AI response if not coming from WebSocket
   if (!req.ws) {
-    generateAIResponse(conversationId, userId)
-      .catch(error => {
-        console.error("AI response error:", error);
-      });
+    assistantMessage = await generateAIResponse(conversationId, userId);
   }
 
-  return res
-    .status(201)
-    .json(new ApiResponse(201, message, "Message created successfully"));
+  return res.status(201).json(
+    new ApiResponse(
+      201,
+      {
+        userMessage: message,
+        assistantMessage,
+      },
+      "User and assistant messages created"
+    )
+  );
 });
 
 // ... (rest of the file remains the same)
@@ -104,8 +109,9 @@ const getMessages = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Conversation not found");
   }
 
-  const messages = await Message.find({ conversationId })
-    .sort({ createdAt: 1 });
+  const messages = await Message.find({ conversationId }).sort({
+    createdAt: 1,
+  });
 
   return res
     .status(200)
@@ -144,4 +150,3 @@ const deleteMessage = asyncHandler(async (req, res) => {
 
 // Remove addReaction from exports since you removed reactions
 export { createMessage, editMessage, getMessages, deleteMessage };
-
