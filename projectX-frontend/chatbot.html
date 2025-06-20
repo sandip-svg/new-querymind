@@ -707,6 +707,26 @@
         margin: 10px 0;
       }
 
+      .delete-icon {
+        float: right;
+        color: #ff6b6b;
+        cursor: pointer;
+        margin-left: 10px;
+      }
+
+      .delete-icon:hover {
+        color: #ff3b3b;
+      }
+
+      .edit-title-input {
+        background: #222;
+        color: #fff;
+        border: 1px solid #555;
+        border-radius: 4px;
+        padding: 4px 8px;
+        width: 90%;
+      }
+
       .message li {
         margin-bottom: 5px;
       }
@@ -832,7 +852,7 @@
 
     <script type="module">
       import { API_BASE_URL } from "./api.js";
-    
+
       const sidebar = document.getElementById("sidebar");
       const sidebarOverlay = document.getElementById("sidebarOverlay");
       const menuToggle = document.getElementById("menuToggle");
@@ -843,68 +863,67 @@
       const sendButton = document.getElementById("sendButton");
       const userProfile = document.getElementById("userProfile");
       const searchInput = document.getElementById("searchInput");
-    
+
       let currentConversationId = null;
       let isLoading = false;
-    
+
       document.addEventListener("DOMContentLoaded", async () => {
         const token = localStorage.getItem("accessToken");
         if (!token) {
           window.location.href = "login.html";
           return;
         }
-    
+
         await loadUserProfile();
         await loadConversations();
         setupEventListeners();
         setupTextareaAutoResize();
       });
-    
+
       function setupEventListeners() {
         menuToggle.addEventListener("click", () => {
           sidebar.classList.add("open");
           sidebarOverlay.classList.add("open");
         });
-    
+
         sidebarOverlay.addEventListener("click", () => {
           sidebar.classList.remove("open");
           sidebarOverlay.classList.remove("open");
         });
-    
+
         newChatBtn.addEventListener("click", createNewConversation);
-    
+        sendButton.addEventListener("click", sendMessage);
+
         messageInput.addEventListener("keydown", (e) => {
           if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
             sendMessage();
           }
         });
-    
-        sendButton.addEventListener("click", sendMessage);
-    
+
         messageInput.addEventListener("input", () => {
           sendButton.disabled = messageInput.value.trim() === "";
         });
-    
+
         searchInput.addEventListener("input", searchConversations);
       }
-    
+
       function setupTextareaAutoResize() {
         messageInput.addEventListener("input", function () {
           this.style.height = "auto";
           this.style.height = this.scrollHeight + "px";
         });
       }
-    
+
       async function makeRequest(endpoint, method, body = null) {
         const headers = {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
         };
-    
+
         const config = { method, headers };
         if (body) config.body = JSON.stringify(body);
-    
+
         try {
           const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
           const data = await response.json();
@@ -919,107 +938,176 @@
           throw error;
         }
       }
-    
+
       async function loadUserProfile() {
         try {
           const response = await makeRequest("/users/current-user", "GET");
           const user = response.data?.data?.user;
-          if (!user) throw new Error("User data missing");
-          userProfile.querySelector(".user-avatar").textContent = user.userName.charAt(0).toUpperCase();
+          userProfile.querySelector(".user-avatar").textContent = user.userName
+            .charAt(0)
+            .toUpperCase();
           userProfile.querySelector(".user-name").textContent = user.userName;
           userProfile.querySelector(".user-email").textContent = user.email;
         } catch (error) {
           console.error("Failed to load user profile:", error);
         }
       }
-    
+
       async function loadConversations() {
         try {
-          const response = await makeRequest("/conversations/get-conversations", "GET");
+          const response = await makeRequest(
+            "/conversations/get-conversations",
+            "GET"
+          );
           const conversations = response.data;
           chatHistoryList.innerHTML = "";
           if (conversations.length === 0) {
             showWelcomeMessage();
             return;
           }
-    
+
           conversations.forEach((conversation) => {
-            const conversationElement = document.createElement("div");
-            conversationElement.className = "chat-item";
-            conversationElement.textContent = conversation.title;
-            conversationElement.dataset.id = conversation._id;
-            conversationElement.addEventListener("click", () =>
-              loadConversation(conversation._id)
-            );
-            chatHistoryList.appendChild(conversationElement);
+            const item = document.createElement("div");
+            item.className = "chat-item";
+            item.dataset.id = conversation._id;
+
+            item.innerHTML = `
+              <span class="conversation-title">${conversation.title}</span>
+              <i class="fas fa-trash delete-icon" title="Delete"></i>
+            `;
+
+            item.addEventListener("click", () => {
+              loadConversation(conversation._id);
+            });
+
+            item
+              .querySelector(".conversation-title")
+              .addEventListener("dblclick", () => {
+                const input = document.createElement("input");
+                input.type = "text";
+                input.value = conversation.title;
+                input.className = "edit-title-input";
+                item.innerHTML = "";
+                item.appendChild(input);
+                input.focus();
+
+                input.addEventListener("blur", async () => {
+                  const newTitle = input.value.trim();
+                  if (newTitle && newTitle !== conversation.title) {
+                    await renameConversation(conversation._id, newTitle);
+                  }
+                  await loadConversations(); // refresh sidebar
+                });
+              });
+
+            item
+              .querySelector(".delete-icon")
+              .addEventListener("click", async (e) => {
+                e.stopPropagation();
+                const confirmed = confirm(
+                  "Are you sure you want to delete this conversation?"
+                );
+                if (!confirmed) return;
+
+                try {
+                  await makeRequest(
+                    `/conversations/delete-conversions/${conversation._id}`,
+                    "DELETE"
+                  );
+                  if (currentConversationId === conversation._id) {
+                    chatMessages.innerHTML = "";
+                    showWelcomeMessage();
+                  }
+                  await loadConversations();
+                } catch (err) {
+                  alert("Failed to delete conversation");
+                }
+              });
+
+            chatHistoryList.appendChild(item);
           });
-    
-          loadConversation(conversations[0]._id);
+
+          if (!currentConversationId && conversations[0]) {
+            loadConversation(conversations[0]._id);
+          }
         } catch (error) {
           console.error("Failed to load conversations:", error);
         }
       }
-    
+
+      async function renameConversation(conversationId, newTitle) {
+        try {
+          await makeRequest(
+            `/conversations/update-conversions-title/${conversationId}`,
+            "PATCH",
+            {
+              title: newTitle,
+            }
+          );
+        } catch (err) {
+          console.error("Failed to rename conversation", err);
+        }
+      }
+
       async function createNewConversation() {
         try {
-          const response = await makeRequest("/conversations/create-conversation", "POST", {
-            title: "New Chat",
-          });
-          const conversation = response.data;
-    
-          const conversationElement = document.createElement("div");
-          conversationElement.className = "chat-item active";
-          conversationElement.textContent = conversation.title;
-          conversationElement.dataset.id = conversation._id;
-          conversationElement.addEventListener("click", () =>
-            loadConversation(conversation._id)
+          const response = await makeRequest(
+            "/conversations/create-conversation",
+            "POST",
+            {
+              title: "New Chat",
+            }
           );
-          chatHistoryList.insertBefore(conversationElement, chatHistoryList.firstChild);
-    
+          const conversation = response.data;
+          await loadConversations();
           loadConversation(conversation._id);
-          chatMessages.innerHTML = "";
-          showWelcomeMessage();
-          sidebar.classList.remove("open");
-          sidebarOverlay.classList.remove("open");
         } catch (error) {
           console.error("Failed to create conversation:", error);
         }
       }
-    
+
       async function loadConversation(conversationId) {
         try {
-          document.querySelectorAll(".chat-item").forEach((item) => {
-            item.classList.remove("active");
-            if (item.dataset.id === conversationId) item.classList.add("active");
-          });
-    
           currentConversationId = conversationId;
+
+          document
+            .querySelectorAll(".chat-item")
+            .forEach((item) =>
+              item.classList.toggle(
+                "active",
+                item.dataset.id === conversationId
+              )
+            );
+
           chatMessages.innerHTML = '<div class="spinner"></div>';
-    
-          const response = await makeRequest(`/messages/get-message/${conversationId}`, "GET");
+
+          const response = await makeRequest(
+            `/messages/get-message/${conversationId}`,
+            "GET"
+          );
           const messages = response.data;
           chatMessages.innerHTML = "";
-    
+
           if (messages.length === 0) {
             showWelcomeMessage();
             return;
           }
-    
+
           messages.forEach((message) => addMessageToChat(message));
           chatMessages.scrollTop = chatMessages.scrollHeight;
         } catch (error) {
           console.error("Failed to load conversation:", error);
         }
       }
-    
+
       async function sendMessage() {
         const content = messageInput.value.trim();
         if (!content || !currentConversationId || isLoading) return;
-    
+
         try {
           isLoading = true;
           sendButton.disabled = true;
-    
+
           const userMessage = {
             content,
             role: "user",
@@ -1030,30 +1118,30 @@
           messageInput.style.height = "auto";
           chatMessages.scrollTop = chatMessages.scrollHeight;
           showTypingIndicator();
-    
+
           const response = await makeRequest(
             `/messages/create-message/${currentConversationId}`,
             "POST",
             { content }
           );
-    
+
           hideTypingIndicator();
-    
-          const { userMessage: sentUserMessage, assistantMessage } = response.data;
-    
+
+          const { assistantMessage } = response.data;
           if (assistantMessage) {
             addMessageToChat(assistantMessage);
             chatMessages.scrollTop = chatMessages.scrollHeight;
           }
-    
+
           const activeItem = document.querySelector(
             `.chat-item[data-id="${currentConversationId}"]`
           );
           if (activeItem && activeItem.textContent === "New Chat") {
-            const shortTitle = content.length > 30 ? content.substring(0, 30) + "..." : content;
-            renameConversation(currentConversationId, shortTitle);
+            const shortTitle =
+              content.length > 30 ? content.slice(0, 30) + "..." : content;
+            await renameConversation(currentConversationId, shortTitle);
+            await loadConversations();
           }
-    
         } catch (error) {
           console.error("Failed to send message:", error);
           hideTypingIndicator();
@@ -1062,17 +1150,19 @@
           sendButton.disabled = false;
         }
       }
-    
+
       function addMessageToChat(message) {
         const messageElement = document.createElement("div");
-        messageElement.className = `message ${message.role === "user" ? "user-message" : "bot-message"}`;
+        messageElement.className = `message ${
+          message.role === "user" ? "user-message" : "bot-message"
+        }`;
         messageElement.innerHTML = `
           <div>${message.content.replace(/\n/g, "<br>")}</div>
           <span class="message-time">${formatTime(message.createdAt)}</span>
         `;
         chatMessages.appendChild(messageElement);
       }
-    
+
       function showTypingIndicator() {
         const typingElement = document.createElement("div");
         typingElement.className = "typing-indicator";
@@ -1085,12 +1175,12 @@
         chatMessages.appendChild(typingElement);
         chatMessages.scrollTop = chatMessages.scrollHeight;
       }
-    
+
       function hideTypingIndicator() {
         const typingElement = document.getElementById("typingIndicator");
         if (typingElement) typingElement.remove();
       }
-    
+
       function showWelcomeMessage() {
         chatMessages.innerHTML = `
           <div class="welcome-container">
@@ -1098,35 +1188,10 @@
               <h1>Welcome to QueryMind AI</h1>
               <p>Ask me anything, from creative ideas to technical explanations. I'm here to help!</p>
             </div>
-            <div class="capabilities-grid">
-              <div class="capability-card">
-                <i class="fas fa-lightbulb"></i>
-                <h3>Brainstorm Ideas</h3>
-                <p>"Help me come up with a unique business name for a pet grooming service"</p>
-              </div>
-              <div class="capability-card">
-                <i class="fas fa-code"></i>
-                <h3>Explain Code</h3>
-                <p>"Explain how this React component works line by line"</p>
-              </div>
-              <div class="capability-card">
-                <i class="fas fa-book"></i>
-                <h3>Learn Concepts</h3>
-                <p>"Explain quantum computing like I'm 10 years old"</p>
-              </div>
-            </div>
           </div>
         `;
       }
-    
-      function searchConversations() {
-        const searchTerm = searchInput.value.toLowerCase();
-        document.querySelectorAll(".chat-item").forEach((item) => {
-          const title = item.textContent.toLowerCase();
-          item.style.display = title.includes(searchTerm) ? "block" : "none";
-        });
-      }
-    
+
       function formatTime(timestamp) {
         const date = new Date(timestamp);
         return date.toLocaleTimeString("en-IN", {
@@ -1136,33 +1201,20 @@
           timeZone: "Asia/Kolkata",
         });
       }
-    
-      async function renameConversation(conversationId, newTitle) {
-        try {
-          await makeRequest(`/conversations/update-conversions-title/${conversationId}`, "PATCH", {
-            title: newTitle,
-          });
-    
-          const activeItem = document.querySelector(
-            `.chat-item[data-id="${conversationId}"]`
-          );
-          if (activeItem) activeItem.textContent = newTitle;
-        } catch (error) {
-          console.error("Failed to rename conversation:", error);
-        }
-      }
-    
+
       async function logoutUser() {
         try {
           await makeRequest("/users/logout", "POST");
         } catch (err) {
-          console.warn("Logout failed on server, continuing...");
+          console.warn("Logout failed on server");
         }
         localStorage.removeItem("accessToken");
         window.location.href = "login.html";
       }
-    
-      document.getElementById("logoutButton").addEventListener("click", logoutUser);
+
+      document
+        .getElementById("logoutButton")
+        .addEventListener("click", logoutUser);
     </script>
   </body>
 </html>
